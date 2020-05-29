@@ -5,7 +5,8 @@
 
 class SaveState : public BlipState {
 public:
-    SaveState(BlipSystem* system);
+    SaveState(BlipSystem* system, BlipState* nextState = getBlipEmptyState());
 
+    void init();
     void execute();
 };

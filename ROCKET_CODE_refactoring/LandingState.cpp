@@ -3,6 +3,11 @@
 #include "Arduino.h"
 #include "SaveState.h"
 
+LandingState::LandingState(BlipSystem* pBlipSystem, BlipState* nextState, unsigned long _timerDelta, double mad)
+ : LandingState(pBlipSystem, _timerDelta, mad) {
+   setNextState(nextState);
+ }
+
 LandingState::LandingState(BlipSystem* pBlipSystem, unsigned long _timerDelta = 250, double mad = 0.1)
  : BlipState(pBlipSystem, "LandingState"), MAX_ACCEPTABLE_DELTA(mad) {
   timerDelta = _timerDelta;
@@ -19,6 +24,7 @@ void LandingState::execute() {
       pBlipSystem->setIndication(P_TONE, 500, cls, 500);
       pBlipSystem->getSystemLogger()->logEvent("ROCKET WAS LANDED");
       pBlipSystem->getSystemLogger()->finish();
+      next();
     }
     cnt = 0;
   }

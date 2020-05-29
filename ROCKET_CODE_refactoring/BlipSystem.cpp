@@ -64,7 +64,7 @@ void BlipSystem::init() {
   
   Serial.println("\nUpdating position...");
   updatePosition();
-  //setIndication(b_im, b_tn);
+  // setIndication(b_im, b_tn);
   
   for (uint8_t i = 0; i < BLIP_EVENT_TYPES_COUNT; ++i) {
     listners.push_back(Vector<BlipSubscriber*>());
@@ -108,6 +108,7 @@ void BlipSystem::execute() {
       break;
   }
   */
+  notify(BlipEventType::onExecution);
   Serial.println("ACCEL:");
   Serial.println(" aX : " + (String)accX);
   Serial.println(" aY : " + (String)accY);
@@ -258,4 +259,33 @@ void BlipSystem::waitingStart() {
 void BlipSystem::updatePosition() {
   pImuUnit->getMetrics6(&gyroX, &gyroY, &gyroZ, &accX, &accY, &accZ);
   height = bmp.readAltitude(seaAirPressure) - zeroHeight;
+}
+
+void BlipSystem::subscribe(BlipSubscriber* sub, BlipEventType type) {
+  listners[(uint8_t)type].push_back(sub);
+}
+
+bool BlipSystem::unsubscribe(BlipSubscriber* sub, BlipEventType type) {
+  for (uint8_t i = 0; i < listners[(uint8_t)type].size(); ++i) {
+    if (listners[(uint8_t)type][i] == sub) {
+      listners[(uint8_t)type].remove(i);
+      return true;
+    }
+  }
+  return false;
+}
+
+void BlipSystem::notify(BlipEventType type) {
+  for (uint8_t i = 0; i < listners[(uint8_t)type].size(); ++i) {
+    listners[(uint8_t)type][i]->update(this, type);
+  }
+}
+
+void BlipSystem::changeState(BlipState* newState, bool removeLast = false) {
+  if (removeLast && pState != BlipState::getBlipEmptyState() && pState != nullptr) {
+    delete pState;
+  }
+  newState->init();
+  pState = newState;
+  notify(BlipEventType::onBlipStateChange);
 }

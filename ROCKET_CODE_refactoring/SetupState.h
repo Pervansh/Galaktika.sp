@@ -14,8 +14,9 @@ class SetupState : public BlipState {
     unsigned long calibrationTime;
     double zSum, xSum, hSum;
   public:
-    SetupState(BlipSystem* pBlipSystem, int sbp);
+    SetupState(BlipSystem* pBlipSystem, int sbp, BlipState* nextState = getBlipEmptyState());
 
+    void init() {}
     void execute();
 
     void reset();

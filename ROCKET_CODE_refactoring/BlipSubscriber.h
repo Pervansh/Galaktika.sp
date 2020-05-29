@@ -14,5 +14,5 @@ enum class BlipEventType : uint8_t {
 class BlipSubscriber {
 public:
     BlipSubscriber() {}
-    virtual void update(BlipSystem* system, BlipEventType type) = 0;
+    virtual void update(BlipSystem* system, BlipEventType event) = 0;
 };

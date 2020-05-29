@@ -25,7 +25,8 @@ class ThrusterState : public BlipState {
 
     void thrusterStabilization(double dt);
   public:
-    ThrusterState(BlipSystem* pBlipSystem);
+    ThrusterState(BlipSystem* pBlipSystem, BlipState* nextState = getBlipEmptyState());
 
+    void init();
     void execute();
 };

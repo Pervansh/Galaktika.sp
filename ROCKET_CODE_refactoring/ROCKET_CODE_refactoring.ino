@@ -1,5 +1,12 @@
 #include "config.h"
+#include "BlipState.h"
 #include "BlipSystem.h"
+#include "BlipSubscriber.h"
+#include "SetupState.h"
+#include "WaitingStartState.h"
+#include "ThrusterState.h"
+#include "LandingState.h"
+#include "SaveState.h" 
 
 BlipSystem *pBlipSystem = new BlipSystem();
 
@@ -16,8 +23,21 @@ BlipSystem *pBlipSystem = new BlipSystem();
    +Постоянная коректировка по акселерометру
 */
 
+SetupState* setupState = new SetupState(pBlipSystem, SAFE_SWITCH);
+WaitingStartState* waitingStartState(pBlipSystem, false);
+ThrusterState* thrusterState = new ThrusterState(pBlipSystem);
+LandingState* landingState = new LandingState(pBlipSystem);
+SaveState* saveState = new SaveState(pBlipSystem);
+
 void setup() {
   pBlipSystem->init();
+
+  setupState->setNextState(waitingStartState);
+  waitingStartState->setNextState(thrusterState);
+  thrusterState->setNextState(landingState);
+  landingState->setNextState(saveState);
+
+  pBlipSystem->changeState(setupState);
 }
 
 void loop() {

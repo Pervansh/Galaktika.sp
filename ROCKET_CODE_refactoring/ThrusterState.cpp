@@ -2,8 +2,8 @@
 #include "Arduino.h"
 #include "config.h"
 
-ThrusterState::ThrusterState(BlipSystem* pBlipSystem)
-    : BlipState(pBlipSystem, "ThrusterState") {
+ThrusterState::ThrusterState(BlipSystem* pBlipSystem, BlipState* nextState)
+    : BlipState(pBlipSystem, "ThrusterState", nextState) {
     timer = millis();
     isInAir = false;
     pin = 23;
@@ -17,10 +17,13 @@ ThrusterState::ThrusterState(BlipSystem* pBlipSystem)
     }
     servoX = pBlipSystem->getServoXPointer();
     servoZ = pBlipSystem->getServoZPointer();
+}
+
+void ThrusterState::init() {
     pBlipSystem->getImuUnitPointer()->useAccelCorrection(false);
     bool cls[3] = {true, false, false};
     pBlipSystem->setIndication(500, 0, cls, 100);
-    pBlipSystem->getSystemLogger()->logEvent("IN_FLIGHT");
+    pBlipSystem->getSystemLogger()->logEvent("ROCKET IN AIR");
 }
 
 void ThrusterState::execute() {

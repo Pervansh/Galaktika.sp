@@ -61,7 +61,7 @@ class BlipSystem {
   private:
     OrintationUnit* pImuUnit = new MpuOrintationUnit(45, false);
     SystemLogger* pLogger = new SystemLogger(this, LOG_DELTA);
-    BlipState* pState = new SetupState(this, SAFE_SWITCH);
+    BlipState* pState = BlipState::getBlipEmptyState();
     Vector<Vector<BlipSubscriber*>> listners;
 
     Servo* pServoX = new Servo;
@@ -117,9 +117,11 @@ class BlipSystem {
 
     void updatePosition();
 
-    // void subscribe(BlipSubscriber* sub, BlipEventType type);
-    // void notify(BlipEventType type);
+    void subscribe(BlipSubscriber* sub, BlipEventType type);
+    bool unsubscribe(BlipSubscriber* sub, BlipEventType type);
+    void notify(BlipEventType type);
 
+    void changeState(BlipState* newState, bool removeLast = false);
     int getState(){return state;}
     void setState(int state){this->state = state;}
     BlipState* getBlipState(){return pState;}

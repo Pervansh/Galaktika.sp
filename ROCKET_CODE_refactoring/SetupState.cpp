@@ -3,7 +3,8 @@
 #include "ThrusterState.h"
 #include "Arduino.h"
 
-SetupState::SetupState(BlipSystem* pBlipSystem, int sbp) : BlipState(pBlipSystem, "SetupState"), safeSwitchPin(sbp) {
+SetupState::SetupState(BlipSystem* pBlipSystem, int sbp, BlipState* nextState)
+ : BlipState(pBlipSystem, "SetupState", nextState), safeSwitchPin(sbp) {
   setupState = 0;
   warmingTime = WARMING_TIME;
   calibrationTime = CALIBRATION_TIME;
@@ -65,7 +66,8 @@ void SetupState::execute() {
         pBlipSystem->getSystemLogger()->logEvent("WAITING START");
         pBlipSystem->getImuUnitPointer()->resetAngles();
         pBlipSystem->setState(MIDDLE_AIR);
-        pBlipSystem->setBlipState(new ThrusterState(pBlipSystem));
+        next();
+        // pBlipSystem->setBlipState(new ThrusterState(pBlipSystem));
         delay(500);
       }
       break;

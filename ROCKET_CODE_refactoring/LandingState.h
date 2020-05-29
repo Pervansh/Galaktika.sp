@@ -13,7 +13,9 @@ class LandingState : public BlipState {
     unsigned long timerDelta, timer;
   public:
     LandingState(BlipSystem* pBlipSystem, unsigned long _timerDelta = 250, double mad = 0.1);
+    LandingState(BlipSystem* pBlipSystem, BlipState* nextState, unsigned long _timerDelta = 250, double mad = 0.1);
 
+    void init() {}
     void execute();
 };
 

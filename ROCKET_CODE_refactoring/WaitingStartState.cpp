@@ -3,6 +3,11 @@
 #include "SystemLogger.h"
 #include "Arduino.h"
 
+WaitingStartState::WaitingStartState(BlipSystem* pBlipSystem, BlipState* nextState, bool useBmp, long maxAcc) 
+ : WaitingStartState(pBlipSystem, useBmp, maxAcc) {
+    setNextState(nextState); 
+}
+
 WaitingStartState::WaitingStartState(BlipSystem* pBlipSystem, bool useBmp, long maxAcc = 25000)
  : BlipState(pBlipSystem, "WaitingStartState") {
     this->maxAcc = maxAcc;
@@ -11,6 +16,9 @@ WaitingStartState::WaitingStartState(BlipSystem* pBlipSystem, bool useBmp, long 
     #else
         this->useBmp = useBmp;
     #endif
+}
+
+void WaitingStartState::init() {
     zeroHeight = pBlipSystem->getHeight();
 }
 
@@ -21,8 +29,8 @@ void WaitingStartState::execute() {
         pBlipSystem->setState(MIDDLE_AIR);
         bool cls[3] = {false, false, true};
         pBlipSystem->setIndication(P_TONE, 1000, cls, 0);
-        pBlipSystem->getSystemLogger()->logEvent("ROCKET IN AIR");
         pBlipSystem->getImuUnitPointer()->useAccelCorrection(false);
+        next();
         //setIndication(b_im, b_tn);
     }
 }
