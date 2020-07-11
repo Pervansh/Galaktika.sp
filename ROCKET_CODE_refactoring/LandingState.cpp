@@ -18,8 +18,8 @@ LandingState::LandingState(BlipSystem* pBlipSystem, unsigned long _timerDelta = 
 void LandingState::execute() {
   if (cnt >= 20) {
     if (abs(hMax - hMin) <= MAX_ACCEPTABLE_DELTA) {
-      pBlipSystem->setBlipState(new SaveState(pBlipSystem));
-      pBlipSystem->setState(SAVING_STATE);
+      // pBlipSystem->setBlipState(new SaveState(pBlipSystem));
+      // pBlipSystem->setState(SAVING_STATE);
       bool cls[3] = {false, true, false};
       pBlipSystem->setIndication(P_TONE, 500, cls, 500);
       pBlipSystem->getSystemLogger()->logEvent("ROCKET WAS LANDED");

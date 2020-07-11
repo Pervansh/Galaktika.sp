@@ -86,7 +86,7 @@ class BlipSystem {
 
     unsigned int *pBuzzerImpulses = NULL, *pBuzzerTones = NULL;
 
-    int state = SETUP, buzzerN = 0;
+    int buzzerN = 0;
 
     //CheckState
     int event_meter = 0, event_code = 0;
@@ -122,13 +122,7 @@ class BlipSystem {
     void notify(BlipEventType type);
 
     void changeState(BlipState* newState, bool removeLast = false);
-    int getState(){return state;}
-    void setState(int state){this->state = state;}
-    BlipState* getBlipState(){return pState;}
-    void setBlipState(BlipState* pState){
-      delete this->pState;
-      this->pState = pState;
-    }
+    BlipState* getState() { return pState; }
 
     long getAccX(){return accX;}
     long getAccY(){return accY;}

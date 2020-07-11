@@ -2,6 +2,7 @@
 #include "BlipState.h"
 #include "BlipSystem.h"
 #include "BlipSubscriber.h"
+#include "BlipFunctorSubscriber.h"
 #include "SetupState.h"
 #include "WaitingStartState.h"
 #include "ThrusterState.h"
@@ -24,10 +25,18 @@ BlipSystem *pBlipSystem = new BlipSystem();
 */
 
 SetupState* setupState = new SetupState(pBlipSystem, SAFE_SWITCH);
-WaitingStartState* waitingStartState(pBlipSystem, false);
+WaitingStartState* waitingStartState = new WaitingStartState(pBlipSystem, false);
 ThrusterState* thrusterState = new ThrusterState(pBlipSystem);
 LandingState* landingState = new LandingState(pBlipSystem);
 SaveState* saveState = new SaveState(pBlipSystem);
+
+void attachEvents() {
+  BlipFunctorSubscriber* logSub = blipMakeFuncSub(BLIP_SUB_FUNC(system, event) {
+    if (system->getState()->getId().equals("ThrusterState")) {
+      system->getSystemLogger()->start();
+    }
+  } );
+}
 
 void setup() {
   pBlipSystem->init();

@@ -48,7 +48,7 @@ void ThrusterState::execute() {
     thrusterStabilization((double)(millis() - timer) / 1000);
     timer = millis();
     if (millis() - timer >= THRUSTER_WORKING_TIME) {
-        pBlipSystem->setState(SAVING_STATE);
+        // pBlipSystem->setState(SAVING_STATE);
     }
 }
 

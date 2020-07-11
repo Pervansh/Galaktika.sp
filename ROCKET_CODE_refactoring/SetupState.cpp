@@ -65,7 +65,7 @@ void SetupState::execute() {
         Serial.println("SH: changing system state!");
         pBlipSystem->getSystemLogger()->logEvent("WAITING START");
         pBlipSystem->getImuUnitPointer()->resetAngles();
-        pBlipSystem->setState(MIDDLE_AIR);
+        // pBlipSystem->setState(MIDDLE_AIR);
         next();
         // pBlipSystem->setBlipState(new ThrusterState(pBlipSystem));
         delay(500);

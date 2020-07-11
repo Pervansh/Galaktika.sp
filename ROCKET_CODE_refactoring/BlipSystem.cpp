@@ -75,7 +75,7 @@ void BlipSystem::init() {
     Serial.println("was ERROR!");
     bool cls_err[3] = {true, false, false};
     setIndication(N_TONE, 2000, cls_err, 2000);
-    state = FINAL_STATE;
+    // state = FINAL_STATE;
     return;
   }
   loopTimer = millis();
@@ -118,7 +118,7 @@ void BlipSystem::execute() {
   Serial.println(" gY : " + (String)gyroY);
   Serial.println(" gZ : " + (String)gyroZ);
   Serial.println("M: " + (String)height);
-  Serial.println("STATE: " + (String)state);
+  Serial.println("STATE: " + pState->getId());
   // checkState();
   indicate();
   pLogger->logInfo();
@@ -130,7 +130,7 @@ void BlipSystem::execute() {
 
 void BlipSystem::checkState(){
   double a = sqrt(accY * accY + accZ * accZ + accX * accX);
-  if ((gyroX >= 60 || gyroX <= -60 || gyroZ >= 60 || gyroZ <= -60) && state == MIDDLE_AIR) {
+  if ((gyroX >= 60 || gyroX <= -60 || gyroZ >= 60 || gyroZ <= -60)/* && pState == MIDDLE_AIR*/) {
     event_code = EVENT_MISSION_ABORT;
     event_meter += 2;
     Serial.println("ENTER: " + (String)event_meter);
@@ -148,7 +148,7 @@ void BlipSystem::checkState(){
   if (event_meter >= 100) {
     Serial.println("CODE: " + (String)event_code);
     if (EVENT_GOAL_HAD_REACHED == event_code) {
-      state = LANDING;
+      // state = LANDING;
       delete pState;
       pState = new LandingState(this);
       bool cls[3] = {true, false, false};
@@ -156,7 +156,7 @@ void BlipSystem::checkState(){
       pLogger->logEvent("GOAL HAD REACHED(empty fueltank)");
       pImuUnit->useAccelCorrection(true);
     } else if (EVENT_MISSION_ABORT == event_code) {
-      state = LANDING;
+      // state = LANDING;
       delete pState;
       pState = new LandingState(this);
       Serial.println("ENTRED!");
@@ -247,7 +247,7 @@ void BlipSystem::thrusterStabilization(double dt) {
 void BlipSystem::waitingStart() {
   double a = sqrt(accY * accY + accZ * accZ + accX * accX);
   if (accY >= 25000) {
-    state = MIDDLE_AIR;
+    // state = MIDDLE_AIR;
     bool cls[3] = {false, false, true};
     setIndication(P_TONE, 1000, cls, 0);
     pLogger->logEvent("ROCKET IN AIR");

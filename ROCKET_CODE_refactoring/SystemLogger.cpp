@@ -34,7 +34,7 @@ void SystemLogger::logInfo() {
                  (String)pBlipSystem->getGyroZ() + ',' +
                  (String)pBlipSystem->getServoXPointer()->read() + ',' +
                  (String)pBlipSystem->getServoZPointer()->read() + ',' +
-                 (String)pBlipSystem->getState() + ",,");
+                 (String)pBlipSystem->getState()->getId() + ",,");
     /*file.print("\n\nLOG TIME: " + (String)(millis() - startTimer));
       file.print("\nSensors: [");
       file.print("BMP(m) : {" + (String)pBlipSystem->getHeight() + "}, ");
