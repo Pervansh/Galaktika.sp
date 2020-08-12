@@ -24,7 +24,7 @@ class BlipState : public BlipSubscriber {
 
     void next();
     
-    virtual void update(BlipSystem* system, BlipEventType event) {}
+    virtual void update(BlipSystem* system, const String& event) {}
 
     virtual void setNextState(BlipState* newState) { nextState = newState; }
     virtual BlipState* getNextState() { return nextState; }

@@ -15,7 +15,9 @@ class LandingState : public BlipState {
     LandingState(BlipSystem* pBlipSystem, unsigned long _timerDelta = 250, double mad = 0.1);
     LandingState(BlipSystem* pBlipSystem, BlipState* nextState, unsigned long _timerDelta = 250, double mad = 0.1);
 
-    void init() {}
+    void init() {
+      Serial.println("Landing INIT");
+    }
     void execute();
 };
 

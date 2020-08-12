@@ -7,6 +7,9 @@
 #include <Vector.h>
 #include <Adafruit_BMP280.h>
 
+#include <LinkedList.h>
+#include <Pair.h>
+
 #include "config.h"
 #include "BlipSubscriber.h"
 #include "BlipState.h"
@@ -16,6 +19,7 @@
 #include "SystemLogger.h"
 #include "OrintationUnit.h"
 #include "MpuOrintationUnit.h"
+#include "IEventManager.h"
 
 //State codes
 #define SETUP 8
@@ -56,13 +60,16 @@
 
 class SystemLogger;
 class OrintationUnit;
+class String;
 
 class BlipSystem {
   private:
-    OrintationUnit* pImuUnit = new MpuOrintationUnit(45, false);
+    // OrintationUnit* pImuUnit = new MpuOrintationUnit(AXIS_ROTATION, true);
+    OrintationUnit* pImuUnit;
     SystemLogger* pLogger = new SystemLogger(this, LOG_DELTA);
     BlipState* pState = BlipState::getBlipEmptyState();
-    Vector<Vector<BlipSubscriber*>> listners;
+    IEventManager* eventManager;
+    LinkedList< blip::Pair<BlipSub*, const String> > unsubscribedList;
 
     Servo* pServoX = new Servo;
     Servo* pServoZ = new Servo;
@@ -99,8 +106,12 @@ class BlipSystem {
     //Parachute
     unsigned long landingTimer = 0;
 
-  public:
+    void flushUnsubscribed();
 
+  public:
+    BlipSystem();
+    BlipSystem(OrintationUnit* orintationUnit, IEventManager* manager);
+    
     void init();
     void execute();
 
@@ -117,9 +128,9 @@ class BlipSystem {
 
     void updatePosition();
 
-    void subscribe(BlipSubscriber* sub, BlipEventType type);
-    bool unsubscribe(BlipSubscriber* sub, BlipEventType type);
-    void notify(BlipEventType type);
+    void subscribe(BlipSubscriber* sub, const String& type);
+    void unsubscribe(BlipSubscriber* sub, const String& type);
+    void notify(const String& type);
 
     void changeState(BlipState* newState, bool removeLast = false);
     BlipState* getState() { return pState; }

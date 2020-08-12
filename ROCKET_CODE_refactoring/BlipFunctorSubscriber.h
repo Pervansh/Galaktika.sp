@@ -1,18 +1,31 @@
 #pragma once
 
 #include "BlipSubscriber.h"
+#include <IFunctional.h>
 
-#define BLIP_SUB_FUNC(system, event) [](BlipSystem* system, BlipEventType event) -> void
+#define BLIP_SUB_FUNC(system, event) [](BlipSystem* system, const String& event) -> void
 
-typedef void (*BlipSubFunc)(BlipSystem*, BlipEventType);
 class BlipFunctorSubscriber;
-BlipFunctorSubscriber* blipMakeFuncSub(BlipSubFunc func);
-
+class String;
+typedef BlipFunctorSubscriber BlipFuncSub;
 
 class BlipFunctorSubscriber : public BlipSubscriber {
 private:
-    BlipSubFunc functor;
+    blip::IFunctional<void, BlipSystem*, const String&>* functional;
 public:
-    BlipFunctorSubscriber(BlipSubFunc func);
-    virtual void update(BlipSystem* system, BlipEventType event);
+    virtual BlipFunctorSubscriber(blip::IFunctional<void, BlipSystem*, const String&>* func);
+    virtual void update(BlipSystem* system, const String& event);
+    virtual ~BlipFunctorSubscriber();
 };
+
+BlipFunctorSubscriber* blipMakeFuncSub(void (*function)(BlipSystem*, const String&));
+
+template <typename T>
+BlipFunctorSubscriber* blipMakeFuncSub(T* functor) {
+    return new BlipFunctorSubscriber(blip::toFunctional< T, void, BlipSystem*, const String& >(functor));
+}
+
+template <typename T>
+BlipFunctorSubscriber* blipMakeFuncSub(void (T::* memberFunction)(BlipSystem*, const String&), T* object) {
+    return new BlipFunctorSubscriber(blip::toFunctional(memberFunction, object));
+}

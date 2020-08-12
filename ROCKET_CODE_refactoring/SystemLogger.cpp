@@ -13,7 +13,7 @@ bool SystemLogger::start() {
       file.print("-LOG NAME: '");
       //file.print(fileName);
       file.println("'-\n");
-      file.println("-# Time(s), Altitude(m), Velocity(m/s), Angles[x, y, z](grades), Servo[x, z](grades), State(num),,");
+      file.println("-# Time(s), Altitude(m), Velocity(m/s), Angles[x, y, z](grades), Servo[x, z](grades), State(id),,");
     } else {
       Serial.println("ERROR: SD-CARD CAN'T OPEN FILE");
     }

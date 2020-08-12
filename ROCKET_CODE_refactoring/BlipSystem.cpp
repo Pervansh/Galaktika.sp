@@ -1,5 +1,16 @@
 #include "BlipSystem.h"
 #include "Arduino.h"
+#include "TrieEventManager.h"
+
+BlipSystem::BlipSystem() {
+  pImuUnit = new MpuOrintationUnit(AXIS_ROTATION, true);
+  eventManager = new TrieEventManager();
+}
+
+BlipSystem::BlipSystem(OrintationUnit* orintationUnit, IEventManager* manager) {
+  pImuUnit = orintationUnit;
+  eventManager = manager;
+}
 
 void BlipSystem::init() {
   bool wasError = false;
@@ -49,6 +60,8 @@ void BlipSystem::init() {
   pServoX->write(86);
   pServoZ->write(96);
 
+  Serial.println("SERVO->READ SIZE: " + (String)sizeof(pServoX->read()));
+
   //  Serial.println("Flash init: " + flash.initialize() ? "OK!" : "FAIL!");
   if (!bmp.begin()) {
     Serial.println(F("Could not find a valid BMP280 sensor, check wiring!"));
@@ -66,10 +79,6 @@ void BlipSystem::init() {
   updatePosition();
   // setIndication(b_im, b_tn);
   
-  for (uint8_t i = 0; i < BLIP_EVENT_TYPES_COUNT; ++i) {
-    listners.push_back(Vector<BlipSubscriber*>());
-  }
-  
   Serial.println("Setup is over");
   if (wasError) {
     Serial.println("was ERROR!");
@@ -85,7 +94,6 @@ void BlipSystem::init() {
 
 void BlipSystem::execute() {
   updatePosition();
-  pState->execute();
   /*
   switch (state) {
     case SETUP:
@@ -108,7 +116,6 @@ void BlipSystem::execute() {
       break;
   }
   */
-  notify(BlipEventType::onExecution);
   Serial.println("ACCEL:");
   Serial.println(" aX : " + (String)accX);
   Serial.println(" aY : " + (String)accY);
@@ -118,7 +125,10 @@ void BlipSystem::execute() {
   Serial.println(" gY : " + (String)gyroY);
   Serial.println(" gZ : " + (String)gyroZ);
   Serial.println("M: " + (String)height);
+  Serial.println("ZH: " + (String)zeroHeight);
   Serial.println("STATE: " + pState->getId());
+  pState->execute();
+  notify(BlipEventTypes::onExecution);
   // checkState();
   indicate();
   pLogger->logInfo();
@@ -261,24 +271,25 @@ void BlipSystem::updatePosition() {
   height = bmp.readAltitude(seaAirPressure) - zeroHeight;
 }
 
-void BlipSystem::subscribe(BlipSubscriber* sub, BlipEventType type) {
-  listners[(uint8_t)type].push_back(sub);
+void BlipSystem::subscribe(BlipSubscriber* sub, const String& type) {
+  Serial.println("Subscribetion: " + type);
+  eventManager->add(sub, type);
 }
 
-bool BlipSystem::unsubscribe(BlipSubscriber* sub, BlipEventType type) {
-  for (uint8_t i = 0; i < listners[(uint8_t)type].size(); ++i) {
-    if (listners[(uint8_t)type][i] == sub) {
-      listners[(uint8_t)type].remove(i);
-      return true;
-    }
-  }
-  return false;
+void BlipSystem::unsubscribe(BlipSubscriber* sub, const String& type) {
+  eventManager->remove(sub, type);
 }
 
-void BlipSystem::notify(BlipEventType type) {
-  for (uint8_t i = 0; i < listners[(uint8_t)type].size(); ++i) {
-    listners[(uint8_t)type][i]->update(this, type);
+void BlipSystem::notify(const String& type) {
+  // Serial.println("Notification: " + type);
+  eventManager->notify(this, type);
+}
+
+void BlipSystem::flushUnsubscribed() {
+  for (auto node = unsubscribedList.getFirst(); node != nullptr; node = node->next) {
+    eventManager->remove(node->data.f, node->data.s);
   }
+  unsubscribedList.clear();
 }
 
 void BlipSystem::changeState(BlipState* newState, bool removeLast = false) {
@@ -287,5 +298,5 @@ void BlipSystem::changeState(BlipState* newState, bool removeLast = false) {
   }
   newState->init();
   pState = newState;
-  notify(BlipEventType::onBlipStateChange);
+  notify(BlipEventTypes::onBlipStateChange);
 }

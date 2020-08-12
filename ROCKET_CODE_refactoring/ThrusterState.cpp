@@ -4,8 +4,6 @@
 
 ThrusterState::ThrusterState(BlipSystem* pBlipSystem, BlipState* nextState)
     : BlipState(pBlipSystem, "ThrusterState", nextState) {
-    timer = millis();
-    isInAir = false;
     pin = 23;
     /*
     pinMode(pin, OUTPUT);
@@ -24,6 +22,8 @@ void ThrusterState::init() {
     bool cls[3] = {true, false, false};
     pBlipSystem->setIndication(500, 0, cls, 100);
     pBlipSystem->getSystemLogger()->logEvent("ROCKET IN AIR");
+    timer = millis();
+    isInAir = false;
 }
 
 void ThrusterState::execute() {
@@ -46,9 +46,12 @@ void ThrusterState::execute() {
     }
     */
     thrusterStabilization((double)(millis() - timer) / 1000);
-    timer = millis();
+    // timer = millis();
     if (millis() - timer >= THRUSTER_WORKING_TIME) {
         // pBlipSystem->setState(SAVING_STATE);
+        Serial.println("CHANGE!");
+        next();
+        Serial.println("POST CHANGE!");
     }
 }
 

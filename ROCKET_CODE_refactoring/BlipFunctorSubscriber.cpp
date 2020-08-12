@@ -1,12 +1,16 @@
 #include "BlipFunctorSubscriber.h"
 
-BlipFunctorSubscriber::BlipFunctorSubscriber(BlipSubFunc func)
- : functor(func) {}
+BlipFunctorSubscriber::BlipFunctorSubscriber(blip::IFunctional<void, BlipSystem*, const String&>* func)
+ : functional(func) {}
 
-void BlipFunctorSubscriber::update(BlipSystem* system, BlipEventType event) {
-    functor(system, event);
+void BlipFunctorSubscriber::update(BlipSystem* system, const String& event) {
+    (*functional)(system, event);
 }
 
-BlipFunctorSubscriber* blipMakeFuncSub(BlipSubFunc func) {
-    return new BlipFunctorSubscriber(func);
+BlipFunctorSubscriber* blipMakeFuncSub(void (*function)(BlipSystem*, const String&)) {
+    return new BlipFunctorSubscriber(blip::toFunctional(function));
+}
+
+BlipFunctorSubscriber::~BlipFunctorSubscriber() {
+    delete functional;
 }
